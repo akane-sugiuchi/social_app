@@ -1,8 +1,6 @@
-package tool
+package main
 
 import (
-  "net/http"
-  "github.com/labstack/echo"
   "database/sql"
   "fmt"
   _ "github.com/go-sql-driver/mysql"
@@ -16,32 +14,29 @@ func get_connect() *sql.DB{
   return db
 }
 
+func get_email(db *sql.DB) {
+  rows, _ := db.Query("select * from test")
+  fmr.Println(rows)
+}
+
 func Res_mysql() echo.HandlerFunc {
   return func(c echo.Context) error {
     db := get_connect()
     rows, err := db.Query("select * from test")
-    fmt.Println(rows)
     if err != nil {
       return err
     }
-    colum,err := rows.Columns()
-    values := make([]sql.RawBytes,len(colum))
-    scanArgs := make([]interface{},len(values))
+    values := make([]sql.RawBytes,1)
+    scanArgs := make([]interfave{},1)
     for i := range values {
       scanArgs[i] = &values[i]
     }
-    var value string
-    for rows.Next(){
-      err= rows.Scan(scanArgs...)
-      if err != nil {
-        return err
-      }
-      for _,col := range values {
-        if col == nil {
-          value = "NULL"
-        } else {
-          value = string(col)
-        }
+    value := ""
+    for i,col := range values {
+      if col == nil {
+        value = "NULL"
+      } else {
+        value = string(col)
       }
     }
     return c.String(http.StatusOK,value)
