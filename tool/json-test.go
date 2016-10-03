@@ -10,6 +10,7 @@ type Data struct {
   Id  int       `json:"id"`
   Title string    `json:"title"`
   CreatedAt time.Time `json:"created_at"`
+  Query string `json:"query"`
 }
 
 func Res_json() echo.HandlerFunc {
@@ -19,6 +20,7 @@ func Res_json() echo.HandlerFunc {
       Id: 1,
       Title: "HelloWorld",
       CreatedAt: time.Date(2014, 8, 25, 0, 0, 0, 0, loc),
+      Query: c.QueryParam("query"),
     }
     //bytes, _ := json.Marshal(d)
     if err := c.Bind(d); err != nil{
