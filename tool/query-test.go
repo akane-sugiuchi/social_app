@@ -1,23 +1,21 @@
-package main
+package tool
 
 import (
   "net/http"
   "github.com/labstack/echo"
   _ "database/sql"
-  _ "fmt"
+  "fmt"
   _ "github.com/go-sql-driver/mysql"
 )
 
 type user_data struct {
   email string
-  year int
-  month int
+  year string
+  month string
 }
 
-func (user user_data) init (c echo.Context) error{
-  user.email = c.QueryParam("email")
-  user.year = c.QueryParam("year")
-  user.month = c.QueryParam("month")
+func initation(c echo.Context) user_data{
+  return user_data{c.QueryParam("email"),c.QueryParam("year"),c.QueryParam("month")}
 }
 
 func (user user_data) get_event() string{
@@ -25,8 +23,9 @@ func (user user_data) get_event() string{
 }
 
 func Echo_event() echo.HandlerFunc {
-  user := new(user_data)
   return func(c echo.Context) error {
+    user := initation(c)
+    fmt.Println(user)
     a := user.get_event()
     return c.String(http.StatusOK,a)
   }

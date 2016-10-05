@@ -23,13 +23,13 @@ func db_connect() *sql.DB {
 func main(){
 
   e := echo.New()
-  //db := db_connect()
+  db := db_connect()
 
   e.Use(middleware.Logger())
   e.Use(middleware.Recover())
   
   e.Get("/json",tool.Res_json())
   e.Get("/email",tool.Res_mysql())
-  e.Get("/calender",model.Echo_event())
+  e.Get("/calender",model.Echo_event(db))
   e.Run(standard.New(":1323"))
 }
