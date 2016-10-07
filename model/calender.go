@@ -26,7 +26,7 @@ func initation(c echo.Context) user_data{
 }
 
 func (user user_data) get_data(db *sql.DB) []string {
-  query := "select * from Event where user_id=" + user.user_id
+  query := "select summary,dtsart,dtend,description from Event where user_id=" + user.user_id + " and year=" +user.year + " and month=" + user.month
   rows, err := db.Query(query)
   var value []string
   if err != nil {
@@ -43,7 +43,7 @@ func (user user_data) get_data(db *sql.DB) []string {
     err = rows.Scan(scanArgs...)
     for _,col := range values {
       if col == nil {
-        value = append(value,"faluse")
+        value = append(value,"false")
       } else {
         value = append(value,string(col))
       }
@@ -54,10 +54,13 @@ func (user user_data) get_data(db *sql.DB) []string {
 
 func (user user_data) get_event(db *sql.DB) string{
   data := user.get_data(db)
-  st := ""
-  for _,line := range data {
-    st += line + ":"
+  //var str []string
+  st := "{'status':'true','data':{\n"
+  for i := 0;i < len(data);i = i + 4 {
+    st += "[Summary:"+data[0+i]+",dtstart:"+data[1+i]+",dtend:"+data[2+i]+",description:"+data[3+i]+"]"
+    st += "\n"
   }
+  st += "}}"
   return st
 }
 
