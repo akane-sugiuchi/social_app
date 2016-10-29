@@ -31,5 +31,6 @@ func main(){
   e.Get("/json",tool.Res_json())
   e.Get("/email",tool.Res_mysql())
   e.Get("/calender",model.Echo_event(db))
+  e.Get("/regist",model.Echo_regist(db))
   e.Run(standard.New(":1323"))
 }
