@@ -63,6 +63,7 @@ func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
 //ユーザーのイベント情報を返す
 func (user user_data) get_event(db *sql.DB) string{
   data := user.extract_eventdata_from_db(db)
+  fmt.Println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww:"+data[0]+"::"+data[1])
   st := "{'status':'true','data':{\n"
   for i := 0;i < len(data);i = i + 4 {
     st += "[Summary:"+data[0+i]+",dtstart:"+data[1+i]+",dtend:"+data[2+i]+",description:"+data[3+i]+"]"
