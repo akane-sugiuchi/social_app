@@ -9,7 +9,7 @@ import (
 )
 //ユーザーの構造体
 type user_data struct {
-  user_id string
+  id string
   year string
   month string
 }
@@ -25,12 +25,12 @@ type event struct {
 //クエリから情報取得
 //ユーザー情報の初期化
 func user_initation(c echo.Context) user_data{
-  return user_data{c.QueryParam("user_id"),c.QueryParam("year"),c.QueryParam("month")}
+  return user_data{c.QueryParam("id"),c.QueryParam("year"),c.QueryParam("month")}
 }
 
 //データベースからユーザーの登録したイベント情報を抽出
 func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
-  query := "select summary,dtsart,dtend,description from Event where user_id=" + user.user_id + " and year=" + user.year + " and month=" + user.month
+  query := "select summary,dtsart,dtend,description from Event where id=" + user.id + " and year=" + user.year + " and month=" + user.month
 
   rows, err := db.Query(query)
   var value []string

@@ -9,7 +9,7 @@ import (
 )
 
 type event_data struct {
-  user_id string
+  id string
   summary string
   dtstart string
   dtend string
@@ -21,7 +21,7 @@ func inita(c echo.Context) event_data{
 }
 
 func (event event_data) regist_event(db *sql.DB) string{
-  query := "insert into Event (user_id,summary,dtsart,dtend,description) values ('"+event.user_id+"','"+event.summary+"','"+event.dtstart+"','"+event.dtend+"','"+event.description+"')"
+  query := "insert into Event (user_id,summary,dtsart,dtend,description) values ('"+event.id+"','"+event.summary+"','"+event.dtstart+"','"+event.dtend+"','"+event.description+"')"
   _,err := db.Query(query)
   if err != nil {
     return "false"
