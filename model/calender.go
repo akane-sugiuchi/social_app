@@ -30,8 +30,7 @@ func user_initation(c echo.Context) user_data{
 
 //データベースからユーザーの登録したイベント情報を抽出
 func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
-  query := "select summary,dtsart,dtend,description from Event where user_id=" + user.id + " and year=" + user.year + " and month=" + user.month
-
+  query := "select summary,dtstart,dtend,description from Event where user_id="+user.id+" and year="+user.year+" and month="+ user.month
   rows, err := db.Query(query)
   var value []string
 
@@ -63,7 +62,9 @@ func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
 //ユーザーのイベント情報を返す
 func (user user_data) get_event(db *sql.DB) string{
   data := user.extract_eventdata_from_db(db)
-  fmt.Println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww:"+data[0]+"::"+data[1])
+  if len(data) == 1 {
+    return "false"
+  }
   st := "{'status':'true','data':{\n"
   for i := 0;i < len(data);i = i + 4 {
     st += "[Summary:"+data[0+i]+",dtstart:"+data[1+i]+",dtend:"+data[2+i]+",description:"+data[3+i]+"]"
@@ -79,6 +80,7 @@ func Echo_event(db *sql.DB) echo.HandlerFunc {
     user := user_initation(c)
     fmt.Println(user.id)
     //イベント情報を取得
+    defer db.Close()
     json := user.get_event(db)
     return c.String(http.StatusOK,json)
   }

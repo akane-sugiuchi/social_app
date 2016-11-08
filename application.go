@@ -6,6 +6,7 @@ import (
   "github.com/labstack/echo/engine/standard"
   "github.com/labstack/echo/middleware"
   "database/sql"
+  _"fmt"
   _ "github.com/go-sql-driver/mysql"
 
   "./tool"
@@ -24,7 +25,7 @@ func main(){
 
   e := echo.New()
   db := db_connect()
-
+  defer db.Close()
   //ミドルウェアの使用機能
   e.Use(middleware.Logger())
   e.Use(middleware.Recover())
