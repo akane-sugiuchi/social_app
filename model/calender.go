@@ -30,7 +30,7 @@ func user_initation(c echo.Context) user_data{
 
 //データベースからユーザーの登録したイベント情報を抽出
 func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
-  query := "select summary,dtsart,dtend,description from Event where id=" + user.id + " and year=" + user.year + " and month=" + user.month
+  query := "select summary,dtsart,dtend,description from Event where user_id=" + user.id + " and year=" + user.year + " and month=" + user.month
 
   rows, err := db.Query(query)
   var value []string
