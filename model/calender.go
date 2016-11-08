@@ -4,7 +4,7 @@ import (
   "net/http"
   "github.com/labstack/echo"
   "database/sql"
-  _ "fmt"
+  "fmt"
   _ "github.com/go-sql-driver/mysql"
 )
 //ユーザーの構造体
@@ -76,6 +76,7 @@ func Echo_event(db *sql.DB) echo.HandlerFunc {
   return func(c echo.Context) error {
     //ユーザー情報を取得
     user := user_initation(c)
+    fmt.Println(user.id)
     //イベント情報を取得
     json := user.get_event(db)
     return c.String(http.StatusOK,json)
