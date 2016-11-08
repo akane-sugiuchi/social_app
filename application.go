@@ -25,12 +25,16 @@ func main(){
   e := echo.New()
   db := db_connect()
 
+  //ミドルウェアの使用機能
   e.Use(middleware.Logger())
   e.Use(middleware.Recover())
-  
+
+  //モデル
   e.Get("/json",tool.Res_json())
   e.Get("/email",tool.Res_mysql())
   e.Get("/calender",model.Echo_event(db))
   e.Get("/regist",model.Echo_regist(db))
+
+  //サーバー構築 ポート1323
   e.Run(standard.New(":1323"))
 }

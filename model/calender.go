@@ -7,13 +7,14 @@ import (
   _ "fmt"
   _ "github.com/go-sql-driver/mysql"
 )
-
+//ユーザーの構造体
 type user_data struct {
   user_id string
   year string
   month string
 }
 
+//イベントの構造体(json形式)
 type event struct {
   Summary string `json:"Summary"`
   Dtstart string `json:"dtstart"`
@@ -21,21 +22,28 @@ type event struct {
   Description string `json:"dtstart"`
 }
 
-func initation(c echo.Context) user_data{
+//クエリから情報取得
+//ユーザー情報の初期化
+func user_initation(c echo.Context) user_data{
   return user_data{c.QueryParam("user_id"),c.QueryParam("year"),c.QueryParam("month")}
 }
 
-func (user user_data) get_data(db *sql.DB) []string {
-  query := "select summary,dtsart,dtend,description from Event where user_id=" + user.user_id + " and year=" +user.year + " and month=" + user.month
+//データベースからユーザーの登録したイベント情報を抽出
+func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
+  query := "select summary,dtsart,dtend,description from Event where user_id=" + user.user_id + " and year=" + user.year + " and month=" + user.month
+
   rows, err := db.Query(query)
   var value []string
+
   if err != nil {
     value = append(value,"false")
     return value
   }
   colum,err := rows.Columns()
+
   values := make([]sql.RawBytes,len(colum))
   scanArgs := make([]interface{},len(values))
+
   for i := range values {
     scanArgs[i] = &values[i]
   }
@@ -52,9 +60,9 @@ func (user user_data) get_data(db *sql.DB) []string {
   return value
 }
 
+//ユーザーのイベント情報を返す
 func (user user_data) get_event(db *sql.DB) string{
-  data := user.get_data(db)
-  //var str []string
+  data := user.extract_eventdata_from_db(db)
   st := "{'status':'true','data':{\n"
   for i := 0;i < len(data);i = i + 4 {
     st += "[Summary:"+data[0+i]+",dtstart:"+data[1+i]+",dtend:"+data[2+i]+",description:"+data[3+i]+"]"
@@ -66,7 +74,9 @@ func (user user_data) get_event(db *sql.DB) string{
 
 func Echo_event(db *sql.DB) echo.HandlerFunc {
   return func(c echo.Context) error {
-    user := initation(c)
+    //ユーザー情報を取得
+    user := user_initation(c)
+    //イベント情報を取得
     json := user.get_event(db)
     return c.String(http.StatusOK,json)
   }
