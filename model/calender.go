@@ -34,6 +34,7 @@ func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
   rows, err := db.Query(query)
   var value []string
 
+  fmt.Println(err)
   if err != nil {
     value = append(value,"false")
     return value
@@ -78,10 +79,8 @@ func Echo_event(db *sql.DB) echo.HandlerFunc {
   return func(c echo.Context) error {
     //ユーザー情報を取得
     user := user_initation(c)
-    fmt.Println(user.id)
     //イベント情報を取得
-    defer db.Close()
     json := user.get_event(db)
-    return c.String(http.StatusOK,json)
+    return c.JSON(http.StatusOK,json)
   }
 }

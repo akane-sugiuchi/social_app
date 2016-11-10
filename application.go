@@ -5,8 +5,9 @@ import (
   "github.com/labstack/echo"
   "github.com/labstack/echo/engine/standard"
   "github.com/labstack/echo/middleware"
+
+  //データベース関連
   "database/sql"
-  _"fmt"
   _ "github.com/go-sql-driver/mysql"
 
   "./tool"
@@ -36,6 +37,7 @@ func main(){
   e.Get("/calender",model.Echo_event(db))
   e.Get("/regist",model.Echo_regist(db))
 
+  e.Post("/pull",tool.Auto_pull())
   //サーバー構築 ポート1323
   e.Run(standard.New(":1323"))
 }
