@@ -21,16 +21,6 @@ type user_data struct {
 	month string
 }
 
-//イベントの構造体(json形式)
-type event struct {
-	Id          string `json:Id`
-	Summary     string `json:"Summary"`
-	Dtstart     string `json:"dtstart"`
-	Dtend       string `json:"dtend"`
-	Description string `json:"dtstart"`
-	Day         string `json:day`
-}
-
 //クエリから情報取得
 //ユーザー情報の初期化
 func user_initation(c echo.Context) user_data {
@@ -62,7 +52,7 @@ func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
 	for rows.Next() {
 		err = rows.Scan(scanArgs...)
 		for _, col := range values {
-			//データが取得できているかのエラー県ん出
+			//データが取得できているかのエラー検出
 			if col == nil {
 				data_extracted_from_db = append(data_extracted_from_db, "false")
 			} else {
@@ -74,52 +64,34 @@ func (user user_data) extract_eventdata_from_db(db *sql.DB) []string {
 }
 
 //ユーザーのイベント情報を返す
-func (user user_data) get_event(db *sql.DB) string {
+func (user user_data) get_event(db *sql.DB) json_all {
 	//イベントデータを連想配列で取得
 	data := user.extract_eventdata_from_db(db)
 	//取得したカラム数
 	num_colmu := 6
 
-	//各日のイベント格納用連想配列の初期化
-	sche := make([][]string, 31)
-	for day := 0; day < 31; day = day + 1 {
-		sche[day] = []string{}
-	}
-
-	var st string
-	var index int
+	//返すjsonデータの初期化
+	schev := json_all{}
 
 	//returnするjson
-	json := "{'status':'true','data':{"
+  schev.Status = true
 	//充分なデータを取得できていなかったらstatus:falseでreturn
 	if data[0] == "false"{
-		return "{'status':'false','data':{}}"
+    fal := json_event{0,"0","0","0","0"}
+    res := json_all{}
+    res.Status = false
+    res.Data = append(res.Data,fal)
+		return res
 	}
 
-	for i := 0; i < len(data); i = i + num_colmu {
-		st = "[{'id':" + data[0+i] + ",'Summary':'" + data[1+i] + "','dtstart':'" + data[2+i] + "','dtend':'" + data[3+i] + "','description':'" + data[4+i] + "'}]"
+  for i := 0; i < len(data); i = i + num_colmu {
+    id , _ := strconv.Atoi(data[0+i])
+		code := json_event{id,data[1+i],data[2+i],data[3+i],data[4+i]}
 
-		index, _ = strconv.Atoi(data[5+i])
-		sche[index-1] = append(sche[index-1], st)
+    schev.Data = append(schev.Data,code)
 	}
 
-	for set := 0; set < len(sche); set += 1 {
-		json += strconv.Itoa(set+1) + ":"
-		for cont := 0; cont < len(sche[set]); cont += 1 {
-			json += sche[set][cont]
-			if len(sche[set])-1 != cont {
-				json += ","
-			}
-		}
-		if len(sche[set]) == 0 {
-			json += "[]"
-		}
-		if len(sche)-1 != set {
-			json += ","
-		}
-	}
-	json += "}}"
-	return json
+	return schev
 }
 
 func Echo_event(db *sql.DB) echo.HandlerFunc {
