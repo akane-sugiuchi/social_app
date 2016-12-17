@@ -1,16 +1,17 @@
 //
-//  ViewController.swift
+//  TaskListViewController.swift
 //  social
 //
-//  Created by 杉内茜 on 2016/10/11.
+//  Created by 杉内茜 on 2016/12/16.
 //  Copyright © 2016年 杉内茜. All rights reserved.
 //
+
 
 import UIKit
 import Alamofire
 
-class ViewController: UIViewController, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-
+class TaskListViewController: UIViewController, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
     @IBOutlet weak var viewTabBar: UITabBar!
     var comps = DateComponents()
     
@@ -22,7 +23,7 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
     
     var weekList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     var monthList = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    var eventList: [(key: Int, value: [AnyObject])] = []
+    var taskList: [(key: Int, value: [AnyObject])] = []
     
     // Sectionで使用する配列を定義する.
     @IBOutlet weak var headerMenuButton: UIButton!
@@ -37,7 +38,6 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        print("eventList!!")
         // ボタンのサイズを定義.
         let tWidth: CGFloat = 100
         let tHeight: CGFloat = 35
@@ -54,10 +54,9 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
         headerTitle.textAlignment = .center
         self.view.addSubview(headerTitle)
         
-        print("------Event#index-------")
-        //eventList = get_events(year: selectMonthDate.year!, month: selectMonthDate.month!)
-        eventList = get_events(year: selectMonthDate.year!, month: 11)
-        print(eventList)
+        taskList = get_tasks(year: selectMonthDate.year!, month: selectMonthDate.month!)
+        print("-------Task#index-------")
+        print(taskList)
     }
     
     
@@ -69,14 +68,13 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
     
     //一覧テーブルのセクション数を設定
     func numberOfSections(in tableView: UITableView) -> Int {
-        return eventList.count
+        return taskList.count
     }
     
     //一覧テーブルの各セクションのタイトルを指定
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let calendar = Calendar(identifier: .gregorian)
-        //let titleDate = calendar.date(from: DateComponents(year: selectMonthDate.year!, month: selectMonthDate.month!, day: eventList[section].key))
-        let titleDate = calendar.date(from: DateComponents(year: selectMonthDate.year!, month: 11, day: eventList[section].key))
+        let titleDate = calendar.date(from: DateComponents(year: selectMonthDate.year!, month: selectMonthDate.month!, day: taskList[section].key))
         let sectionTitle  = calendar.dateComponents([.year, .month, .day, .weekday], from: titleDate!)
         
         return "\(weekList[sectionTitle.weekday!-1]) \(sectionTitle.month!).\(sectionTitle.day!).\(sectionTitle.year!)"
@@ -84,14 +82,14 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
     
     //一覧テーブルの各セクション内のセル数を設定
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return eventList[section].value.count
+        return taskList[section].value.count
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     //weeklyカレンダーのデータを返すメソッド
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
@@ -99,7 +97,7 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
         let weekday = calendar.component(.weekday, from: Date())
         comps.day = -weekday+1
         let startofWeek = calendar.date(byAdding: comps, to: Date())!
-
+        
         comps.day = indexPath.row
         let showDate = calendar.date(byAdding: comps, to: startofWeek)!
         let showDay  = calendar.component(.day, from: showDate)
@@ -113,43 +111,33 @@ class ViewController: UIViewController, UITableViewDataSource, UICollectionViewD
     //セルに格納するデータを返すメソッド（スクロールなどでページを更新する必要が出るたびに呼び出される）
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "EventCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath)
         
-        let eventStartTimelabel = tableView.viewWithTag(1) as! UILabel
-        let eventEndTimelabel = tableView.viewWithTag(2) as! UILabel
-        let eventTitlelabel = tableView.viewWithTag(3) as! UILabel
+        let taskTitlelabel = tableView.viewWithTag(1) as! UILabel
+        let taskDetaillabel = tableView.viewWithTag(2) as! UILabel
         
-        let eventData = eventList[indexPath.section].value[indexPath.row]
-
-        // 文字列→日付に変換し、時分を取り出し
-        let formatter: DateFormatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
-        let startDateString = formatter.date(from: eventData["dtstart"] as! String)
-        let eventStartDate = calendar.dateComponents([.hour, .minute], from: startDateString!)
-        let endDateString = formatter.date(from: eventData["dtend"] as! String)
-        let eventEndDate = calendar.dateComponents([.hour, .minute], from: endDateString!)
-        
-        eventStartTimelabel.text = "\(eventStartDate.hour!):\(String(format: "%02d", eventStartDate.minute!))"
-        eventEndTimelabel.text = "\(eventEndDate.hour!):\(String(format: "%02d", eventEndDate.minute!))"
-        eventTitlelabel.text = eventData["summary"] as! String?
+        let taskData = taskList[indexPath.section].value[indexPath.row]
+        print(taskData[title] as! String?)
+        taskTitlelabel.text = taskData["title"] as! String?
+        taskDetaillabel.text = taskData["sub_task"] as! String?
         
         return cell
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-        if segue.identifier == "eventDetailSegue" {
-            print ("eventDetailSegue !!")
+        
+        if segue.identifier == "taskDetailSegue" {
+            print ("taskDetailSegue !!")
             
-            let eventDetailViewController:eventDetailViewController = segue.destination as! eventDetailViewController
+            let taskDetailViewController:TaskDetailViewController = segue.destination as! TaskDetailViewController
             
             //選択したセルの情報を取得
             let index = scheduleTableView.indexPathForSelectedRow?.item
             let section = scheduleTableView.indexPathForSelectedRow?.section
             
             // 選択したイベント情報を遷移先のviewに渡す
-            eventDetailViewController.event = eventList[section!].value[index!] as! [String : Any]
-
+            taskDetailViewController.task = taskList[section!].value[index!] as! [String : Any]
+            
         }
     }
     

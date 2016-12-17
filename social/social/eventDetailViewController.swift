@@ -81,8 +81,8 @@ class eventDetailViewController: UIViewController {
         eventDetaillabel.text = event["description"] as! String?
         startDatelabel.text = "\(startDate.year!)/\(startDate.month!)/\(startDate.day!)"
         endDatelabel.text   = "\(endDate.year!)/\(endDate.month!)/\(endDate.day!)"
-        startTimelabel.text = "\(startDate.hour!):\(startDate.minute!)"
-        endTimelabel.text = "\(endDate.hour!):\(endDate.minute!)"
+        startTimelabel.text = "\(startDate.hour!):\(String(format: "%02d",startDate.minute!))"
+        endTimelabel.text = "\(endDate.hour!):\(String(format: "%02d",endDate.minute!))"
         
         eventSummarylabel.sizeToFit()
         eventDetaillabel.sizeToFit()
